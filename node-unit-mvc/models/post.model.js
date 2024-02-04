@@ -18,9 +18,11 @@ exports.createPost = (obj, next) => {
     }) 
 }
 exports.updatePost = (obj, next) => {
-    // const post = new Post(obj);
-    
-    // post.save(function(err, post) {
-    //     next(err, post)
-    // }) 
+    // const postId = req.params.id;
+    // const updatedData = req.body;
+
+    // Use updateOne to update the post based on its _id
+    Post.updateOne({ _id: postId }, { $set: updatedData }, function (err, result) {
+        next(err, result);
+    });
 }

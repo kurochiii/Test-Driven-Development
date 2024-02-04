@@ -13,7 +13,17 @@ PostController.create = (req, res) => {
 };
 
 PostController.update = (req, res) => {
-
+    return PostModel.updatePost(req.params.id, req.body, { new: true }, function (err, update) {
+        if (err) {
+            return res.status(500).end();
+        }
+        else if (!update) {
+            return res.status(404).end();
+        }
+        else {
+            return res.json(update);
+        }
+    })
 };
 
 PostController.findPost = (req, res) => {
