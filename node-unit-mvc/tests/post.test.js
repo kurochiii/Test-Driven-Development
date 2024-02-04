@@ -9,6 +9,9 @@ describe('Post controller', () => {
             author: 'stswenguser',
             title: 'My first test post',
             content: 'Random content'
+        }, 
+        params: {
+            id: '507asdghajsdhjgasd',
         }
     };
 
