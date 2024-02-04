@@ -27,11 +27,31 @@ PostController.update = (req, res) => {
 };
 
 PostController.findPost = (req, res) => {
-
+    return PostModel.findPost(req.params.id, function (err, post) {
+        if (err) {
+            return res.status(500).end();
+        }
+        else if (!post) {
+            return res.status(404).end();
+        }
+        else {
+            return res.json(post);
+        }
+    })
 };
 
-PostController.getAllPosts = (req, res) => {
-
+PostController.findAll = (req, res) => {
+    return PostModel.findAll(function (err, posts) {
+        if (err) {
+            return res.status(500).end();
+        }
+        else if (!posts) {
+            return res.status(404).end();
+        }
+        else {
+            return res.json(posts);
+        }
+    })
 };
 
 module.exports = PostController;

@@ -17,7 +17,7 @@ exports.createPost = (obj, next) => {
         next(err, post)
     }) 
 }
-exports.updatePost = (obj, next) => {
+exports.updatePost = (postId, next) => {
     // const postId = req.params.id;
     // const updatedData = req.body;
 
@@ -27,6 +27,20 @@ exports.updatePost = (obj, next) => {
     });
 }
 
-exports.findById = (obj, next) => {
-    
+exports.findPost = (postId, next) => {
+    // const postId = req.params.id;
+    // const updatedData = req.body;
+
+    Post.findById({ _id: postId }, function (err, result) {
+        next(err, result);
+    });
+}
+
+exports.findAll = (next) => {
+    // const postId = req.params.id;
+    // const updatedData = req.body;
+
+    Post.find(function (err, result) {
+        next(err, result);
+    });
 }
