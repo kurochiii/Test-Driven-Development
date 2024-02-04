@@ -139,7 +139,34 @@ describe('Post controller', () => {
         });
     });
 
-    describe('findPost', () => {
-
-    })
+    describe('findPost', function () {
+        beforeEach(function () {
+            res = {
+                json: sinon.spy(),
+                status: sinon.stub().returns({ end: sinon.spy() })
+            };
+            expectedResult = req.body
+        });
+        it('should return post obj', () => {
+            updatePostStub = sinon.stub(PostModel, 'findById').yields(null, expectedResult);
+            PostController.get(req, res);
+            sinon.assert.calledWith(PostModel.findById, req.params.id);
+            sinon.assert.calledWith(res.json, sinon.match({ model: req.body.model }));
+            sinon.assert.calledWith(res.json, sinon.match({ manufacturer: req.body.manufacturer }));
+        });
+        it('should return 404 for non-existing post id', () => {
+            updatePostStub = sinon.stub(PostModel, 'findById').yields(null, null);
+            PostController.get(req, res);
+            sinon.assert.calledWith(PostModel.findById, req.params.id);
+            sinon.assert.calledWith(res.status, 404);
+            sinon.assert.calledOnce(res.status(404).end);
+        });
+        it('should return status 500 on server error', () => {
+            updatePostStub = sinon.stub(PostModel, 'findById').yields(error);
+            PostController.get(req, res);
+            sinon.assert.calledWith(PostModel.findById, req.params.id);
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledOnce(res.status(500).end);
+        });
+    });
 });
