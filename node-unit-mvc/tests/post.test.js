@@ -133,7 +133,7 @@ describe('Post controller', () => {
             PostController.update(req, res);
 
             // Assert
-            sinon.assert.calledWith(PostModel.updatePost, req.body);
+            sinon.assert.calledWith(PostModel.updatePost, req.params.id, req.body, { new: true });
             sinon.assert.calledWith(res.status, 500);
             sinon.assert.calledOnce(res.status(500).end);
         });
