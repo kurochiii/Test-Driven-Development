@@ -1,16 +1,21 @@
-// import { addPost } from "./postController";
-// import { jest } from "@jest/globals";
-
 const { addPost } = require("./postController");
-// import postController from "./post.controller";
+const { registerUser } = require("./userController");
 const postModel = require("../models/post");
-// import postModel from "../models/post";
+const userModel = require("../models/user");
 
 jest.mock('../models/post', () => ({
     create: jest.fn(),
-    getByUser: jest.fn(),
-    getById: jest.fn()
 }));
+
+jest.mock('../models/user', () => ({
+    create: jest.fn(),
+    getOne: jest.fn()
+}));
+
+jest.mock('bcrypt', () => ({
+    hash: jest.fn((password, saltRounds, callback) => callback(null, 'hashedPassword')),
+  }));
+  
 
 describe('Post controller', () =>{
     // Setup the responses
@@ -25,9 +30,6 @@ describe('Post controller', () =>{
                 title: 'My first test post',
                 content: 'Random content'
             },
-            // params: {
-            //     id: '507asdghajsdhjgasd',
-            // },
             session: {
                 user: 'stswenguser' // Mocking a user id for the session
             },
@@ -38,11 +40,10 @@ describe('Post controller', () =>{
             redirect: jest.fn()
         };
 
-
     });
 
     describe('addPost', () => {
-        it('should create a post and redirect to /posts on success', () => {
+        it('create a post and redirect to /posts', () => {
             // Arrange
             postModel.create.mockImplementation((data, callback)=> callback(null,data));
 
@@ -53,11 +54,9 @@ describe('Post controller', () =>{
             expect(postModel.create).toHaveBeenCalledWith(req.body, expect.any(Function));
             expect(res.redirect).toHaveBeenCalledWith('/posts');
             
-
-            // expect(req.flash).not.toHaveBeenCalled(); // No error message should be flashed
         });
 
-        it('should handle errors and redirect to /posts/add on failure', () => {
+        it('handle errors and redirect to /posts/add', () => {
             // Arrange
             postModel.create.mockImplementation((data, callback)=> callback(error,null));
 
@@ -68,8 +67,73 @@ describe('Post controller', () =>{
             expect(postModel.create).toHaveBeenCalledWith(req.body, expect.any(Function));
             expect(res.redirect).toHaveBeenCalledWith('/posts/add');
     
+        });
+        
+    });
 
-            // expect(req.flash).toHaveBeenCalledWith('error_msg', 'Could not create post. Please try again.');
+    
+});
+
+describe('User controller', () =>{
+    // Setup the responses
+    let req;
+    let res;
+    let error = new Error({ error: 'some error message'});
+
+    beforeEach(() => {
+        req = {
+            body: {
+                name: 'UserName',
+                email: 'SomeEmail@gmail.com',
+                password: '123456'
+            },
+            flash: jest.fn()
+        };
+
+        res = {
+            redirect: jest.fn()
+        };
+
+    });
+
+    describe('registerUser', () => {
+        it('create a user and redirect to /login', () => {
+            // Arrange
+            userModel.create.mockImplementation((data, callback)=> callback(null, data));
+            userModel.getOne.mockImplementation((email, callback)=> callback(null, null));
+
+            // Act
+            registerUser(req, res);
+
+            const newUser = {
+                name: 'UserName',
+                email: 'SomeEmail@gmail.com',
+                password: 'hashedPassword'
+              };
+
+            // Assert
+            expect(userModel.create).toHaveBeenCalledWith(newUser, expect.any(Function));
+            expect(res.redirect).toHaveBeenCalledWith('/login');
+            
+        });
+
+        it('should handle errors and redirect to /register on failure', () => {
+            // Arrange
+            userModel.create.mockImplementation((data, callback)=> callback(error,null));
+
+            // Act
+            registerUser(req, res);
+
+            const newUser = {
+                name: 'UserName',
+                email: 'SomeEmail@gmail.com',
+                password: 'hashedPassword'
+              };
+
+            // Assert
+            expect(userModel.create).toHaveBeenCalledWith(newUser, expect.any(Function));
+            expect(res.redirect).toHaveBeenCalledWith('/register');
+    
         });
         
     });
